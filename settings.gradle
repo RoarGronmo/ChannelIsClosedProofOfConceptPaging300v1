@@ -1,0 +1,2 @@
+rootProject.name = "ChannelIsClosedProofOfConceptPaging300v1"
+include ':app'
