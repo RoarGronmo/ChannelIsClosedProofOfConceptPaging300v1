@@ -64,9 +64,9 @@ class ForegroundOnlyLocationService  : Service()
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         locationRequest = LocationRequest().apply {
-            interval = TimeUnit.SECONDS.toMillis(60)
-            fastestInterval = TimeUnit.SECONDS.toMillis(30)
-            maxWaitTime = TimeUnit.MINUTES.toMillis(2)
+            interval = TimeUnit.SECONDS.toMillis(2)
+            fastestInterval = TimeUnit.SECONDS.toMillis(1)
+            maxWaitTime = TimeUnit.SECONDS.toMillis(3)
 
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }

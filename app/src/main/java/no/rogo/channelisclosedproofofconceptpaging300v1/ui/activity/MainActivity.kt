@@ -4,20 +4,25 @@ import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.os.ResultReceiver
+import android.provider.Settings
 import android.util.Log
 import android.widget.Switch
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
+import no.rogo.channelisclosedproofofconceptpaging300v1.BuildConfig
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
 import no.rogo.channelisclosedproofofconceptpaging300v1.services.ForegroundOnlyLocationService
 import no.rogo.channelisclosedproofofconceptpaging300v1.ui.main.MainFragment
 import no.rogo.channelisclosedproofofconceptpaging300v1.ui.main.MainViewModel
+import no.rogo.channelisclosedproofofconceptpaging300v1.utils.SharedPreferenceUtil
 import no.rogo.channelisclosedproofofconceptpaging300v1.utils.toText
 
 private const val REQUEST_FOREGROUND_ONLY_PERMISSION_REQUEST_CODE = 34
@@ -34,22 +39,24 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    private lateinit var foregroundOnlySwitch: Switch
-
     private lateinit var mainViewModel:MainViewModel
 
     private val foregroundOnlyServiceConnetion = object : ServiceConnection{
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
+            Log.d(TAG, "onServiceConnected: (componentName = $componentName, iBinder = $iBinder)")
+
             val binder = iBinder as ForegroundOnlyLocationService.LocalBinder
             foregroundOnlyLocationService = binder.service
             foregroundOnlyLocationServiceBound = true
-            Log.d(TAG, "onServiceConnected: componentName = $componentName, iBinder.interfaceDescriptor = ${iBinder.interfaceDescriptor}")
+            Log.d(TAG, "onServiceConnected: foregroundOnlyLocationService = $foregroundOnlyLocationService")
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {
+            Log.d(TAG, "onServiceDisconnected: (componentName = $componentName)")
+            Log.d(TAG, "onServiceDisconnected: foregroundOnlyLocationService" +
+                    " = $foregroundOnlyLocationService")
             foregroundOnlyLocationService = null
             foregroundOnlyLocationServiceBound = false
-            Log.d(TAG, "onServiceDisconnected: componentName = $componentName")
         }
 
     }
@@ -59,12 +66,15 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     private inner class ForegroundOnlyBroadcastReceiver: BroadcastReceiver()
     {
         override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d(TAG, "onReceive: (context = $context, intent = $intent)")
             val location = intent?.getParcelableExtra<Location>(
                 ForegroundOnlyLocationService.EXTRA_LOCATION
             )
+            Log.d(TAG, "onReceive: Foreground location = $location")
             if(location != null) {
                 //logResultsToScreen("Foreground location: ${location.toText()}")
-                Log.i(TAG, "onReceive: Foreground location: ${location.toText()}")
+                mainViewModel.lastLocationMLD.postValue(location)
+                Log.i(TAG, "onReceive: Should send location to database")
             }
         }
     }
@@ -72,6 +82,9 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        Log.d(TAG, "onCreate: (savedInstanceState = $savedInstanceState)")
+
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)
@@ -89,6 +102,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
         mainViewModel.switchEnableGPSUpdateStateMLD.observe(this) { switchEnableGPSUpdateState->
+            Log.d(TAG, "onCreate: observing mainViewModel.switchEnableGPSUpdateStateMLD = $switchEnableGPSUpdateState")
             if(switchEnableGPSUpdateState == true)
             {
                 if(foregroundPermissionApproved())
@@ -117,8 +131,69 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     }
 
+    override fun onStart() {
+        Log.d(TAG, "onStart: ()")
+
+        super.onStart()
+
+        updateGPSwitchState(
+            sharedPreferences.getBoolean(SharedPreferenceUtil.KEY_FOREGROUND_ENABLED, false)
+        )
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+
+        val serviceIntent = Intent(this, ForegroundOnlyLocationService::class.java)
+        bindService(serviceIntent, foregroundOnlyServiceConnetion, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onResume() {
+        Log.d(TAG, "onResume: ()")
+        super.onResume()
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            foregroundOnlyBroadCastReceiver,
+            IntentFilter(
+                ForegroundOnlyLocationService.ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST
+            )
+        )
+    }
+
+    override fun onPause() {
+        Log.d(TAG, "onPause: ()")
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+            foregroundOnlyBroadCastReceiver
+        )
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d(TAG, "onStop: ()")
+        if(foregroundOnlyLocationServiceBound)
+        {
+            Log.d(TAG, "onStop: unbinding foreground service")
+            unbindService(foregroundOnlyServiceConnetion)
+            foregroundOnlyLocationServiceBound = false
+        }
+        Log.d(TAG, "onStop: unregistering sharedPreferenceChangeListener")
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+
+        super.onStop()
+
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        Log.d(TAG, "onSharedPreferenceChanged: ()")
+        if(key == SharedPreferenceUtil.KEY_FOREGROUND_ENABLED){
+            sharedPreferences?.getBoolean(
+                SharedPreferenceUtil.KEY_FOREGROUND_ENABLED, false
+            )?.let { updateGPSwitchState(it) }
+                ?: updateGPSwitchState(false)
+        }
+    }
+
+
+
     private fun foregroundPermissionApproved() :Boolean
     {
+        Log.d(TAG, "foregroundPermissionApproved: ()")
         return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION)
@@ -126,6 +201,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private fun requestForegroundPermissions()
     {
+        Log.d(TAG, "requestForegroundPermissions: ()")
         val provideRationale = foregroundPermissionApproved()
 
         if(provideRationale)
@@ -161,6 +237,9 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        Log.d(TAG, "onRequestPermissionsResult: (requestCode = $requestCode, " +
+                    "permissions=$permissions, grantResults=$grantResults)")
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when(requestCode)
@@ -178,9 +257,25 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 else -> {
                     Log.d(TAG, "onRequestPermissionsResult: User did not grant permission")
 
+                    updateGPSwitchState(false)
+
                     Snackbar.make(
-                        findViewById(R.id.container)
+                        findViewById(R.id.container),
+                        "Permission was denied, but is needed for core functions...",
+                        Snackbar.LENGTH_LONG
                     )
+                        .setAction("Settings"){
+                            val intent = Intent()
+                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            val uri = Uri.fromParts(
+                                "package",
+                                BuildConfig.APPLICATION_ID,
+                                null)
+                            intent.data = uri
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
+                        }
+                        .show()
                 }
 
             }
@@ -189,6 +284,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private fun updateGPSwitchState(trackingLocation: Boolean)
     {
+        Log.d(TAG, "updateGPSwitchState: (trackingLocation = $trackingLocation)")
         if(trackingLocation)
         {
             Log.d(TAG, "updateGPSwitchState: attempt to turn on")
@@ -200,8 +296,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         else
         {
             Log.d(TAG, "updateGPSwitchState: attempt to turn off")
-            if(mainViewModel.switchEnableGPSUpdateStateMLD.value==true)
-            {
+            if(mainViewModel.switchEnableGPSUpdateStateMLD.value==true) {
                 Log.d(TAG, "updateGPSwitchState: turning off")
                 mainViewModel.switchEnableGPSUpdateStateMLD.value = false
             }
@@ -209,7 +304,5 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     }
 
 
-    override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
-        TODO("Not yet implemented")
-    }
+
 }
