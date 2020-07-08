@@ -1,18 +1,23 @@
 package no.rogo.channelisclosedproofofconceptpaging300v1.services
 
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.location.Location
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.common.util.SharedPreferencesUtils
 import com.google.android.gms.location.*
+import no.rogo.channelisclosedproofofconceptpaging300v1.R
+import no.rogo.channelisclosedproofofconceptpaging300v1.ui.activity.MainActivity
 import no.rogo.channelisclosedproofofconceptpaging300v1.utils.SharedPreferenceUtil
+import no.rogo.channelisclosedproofofconceptpaging300v1.utils.toText
 import java.util.concurrent.TimeUnit
 
 /**
@@ -131,7 +136,7 @@ class ForegroundOnlyLocationService  : Service()
 
     override fun onUnbind(intent: Intent?): Boolean {
         Log.d(TAG, "onUnbind: ()")
-        if(!configurationChange && SharedPreferenceUtil.getLocationTrackinPref(this))
+        if(!configurationChange && SharedPreferenceUtil.getLocationTrackingPref(this))
         {
             Log.d(TAG, "onUnbind: Start foreground service")
             val notification = generateNotification(currentLocation)
@@ -156,12 +161,97 @@ class ForegroundOnlyLocationService  : Service()
         configurationChange = true
     }
 
+
+
     fun subscribeToLocationUpdates()
     {
         Log.d(TAG, "subscribeToLocationUpdates: ()")
-
+        SharedPreferenceUtil.saveLocationTrackingPref(this, true)
+        startService(Intent(applicationContext, ForegroundOnlyLocationService::class.java))
+        try {
+            fusedLocationProviderClient.requestLocationUpdates(
+                locationRequest, locationCallback, Looper.myLooper()
+            )
+        }catch (unlikely: SecurityException)
+        {
+            SharedPreferenceUtil.saveLocationTrackingPref(this, false)
+            Log.e(TAG, "subscribeToLocationUpdates: Lost location permission. Couldn't request updates")
+        }
     }
 
+    fun unsubscribeToLocationUpdates()
+    {
+        Log.d(TAG, "unsubscribeToLocationUpdates: ()")
+        try {
+            val removeTask = fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+            removeTask.addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    Log.d(TAG, "unsubscribeToLocationUpdates: Location Callback removed")
+                    stopSelf()
+                }
+                else
+                {
+                    Log.e(TAG, "unsubscribeToLocationUpdates: Failed to remove Location Callback")
+                }
+            }
+            SharedPreferenceUtil.saveLocationTrackingPref(this,false)
+        }
+        catch (unlikely: SecurityException){
+            SharedPreferenceUtil.saveLocationTrackingPref(this,true)
+            Log.e(TAG, "unsubscribeToLocationUpdates: Lost location, couldn't remove updates. $unlikely")
+        }
+    }
+
+    private fun generateNotification(location:Location?): Notification{
+        Log.d(TAG, "generateNotification: ()")
+
+        val mainNotificationText = location?.toText() ?: "No current location"
+        val titleText = "Location in Android"
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val notificationChannel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_DEFAULT)
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
+        val bigTextStyle = NotificationCompat
+            .BigTextStyle()
+            .bigText(mainNotificationText)
+            .setBigContentTitle(titleText)
+
+        val launchActivityIntent = Intent(this, MainActivity::class.java)
+        val cancelIntent = Intent(this,ForegroundOnlyLocationService::class.java)
+        cancelIntent.putExtra(EXTRA_CANCEL_LOCATION_TRACKING_FROM_NOTIFICATION, true)
+
+        val servicePendingIntent = PendingIntent.getService(
+            this,0,cancelIntent,PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val activityPendingIntent = PendingIntent.getActivity(
+            this, 0, launchActivityIntent, 0
+        )
+
+        val notificationCompatBuilder = NotificationCompat.Builder(applicationContext,
+            NOTIFICATION_CHANNEL_ID)
+
+        return notificationCompatBuilder
+            .setStyle(bigTextStyle)
+            .setContentTitle(titleText)
+            .setContentText(mainNotificationText)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setOngoing(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .addAction(
+                R.drawable.ic_baseline_launch_24, "Launch activity",
+                activityPendingIntent
+            )
+            .addAction(
+                R.drawable.ic_baseline_cancel_24, "Stop receiving location updates",
+                servicePendingIntent
+            )
+            .build()
+    }
 
 
 

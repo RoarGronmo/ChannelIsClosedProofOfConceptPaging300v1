@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ChannelIsClosedProofOfConceptPaging300v1</string>
+
+    <string name="preference_file_key">no.rogo.channelisclosedproofofconceptpaging300v1.PREFERENCE_FILE_KEY</string>
 </resources>
