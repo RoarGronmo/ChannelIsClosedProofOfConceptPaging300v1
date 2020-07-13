@@ -8,12 +8,9 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
-import android.os.ResultReceiver
 import android.provider.Settings
 import android.util.Log
-import android.widget.Switch
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
@@ -21,9 +18,8 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.BuildConfig
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
 import no.rogo.channelisclosedproofofconceptpaging300v1.services.ForegroundOnlyLocationService
 import no.rogo.channelisclosedproofofconceptpaging300v1.ui.main.MainFragment
-import no.rogo.channelisclosedproofofconceptpaging300v1.ui.main.MainViewModel
+import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
 import no.rogo.channelisclosedproofofconceptpaging300v1.utils.SharedPreferenceUtil
-import no.rogo.channelisclosedproofofconceptpaging300v1.utils.toText
 
 private const val REQUEST_FOREGROUND_ONLY_PERMISSION_REQUEST_CODE = 34
 
@@ -39,7 +35,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    private lateinit var mainViewModel:MainViewModel
+    private lateinit var mainViewModel: MainViewModel
 
     private val foregroundOnlyServiceConnetion = object : ServiceConnection{
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {

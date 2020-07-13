@@ -1,4 +1,4 @@
-package no.rogo.channelisclosedproofofconceptpaging300v1.ui.main
+package no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main
 
 import android.location.Location
 import androidx.lifecycle.MutableLiveData

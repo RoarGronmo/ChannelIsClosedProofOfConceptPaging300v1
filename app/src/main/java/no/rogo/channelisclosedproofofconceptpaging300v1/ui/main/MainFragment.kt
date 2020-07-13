@@ -8,9 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Switch
-import androidx.lifecycle.observe
 import kotlinx.android.synthetic.main.main_fragment.*
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
+import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
 
 class MainFragment : Fragment() {
 
