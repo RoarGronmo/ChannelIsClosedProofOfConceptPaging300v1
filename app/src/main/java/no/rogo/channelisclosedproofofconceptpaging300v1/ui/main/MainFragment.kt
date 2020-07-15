@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Switch
 import kotlinx.android.synthetic.main.main_fragment.*
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
+import no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories.CommonDatabaseRepository
 import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
 
 class MainFragment : Fragment() {
@@ -35,7 +36,11 @@ class MainFragment : Fragment() {
 
         mainViewModel.lastLocationMLD.observe(viewLifecycleOwner){location ->
             location?.let { safeLocation ->
-                textViewLocation.text=getString(R.string.locationText,safeLocation.latitude,safeLocation.longitude)
+                textViewLocation.text=getString(
+                        R.string.locationText,
+                        safeLocation.latitude,
+                        safeLocation.longitude)
+                CommonDatabaseRepository.insertLocation(safeLocation)
             }
         }
 

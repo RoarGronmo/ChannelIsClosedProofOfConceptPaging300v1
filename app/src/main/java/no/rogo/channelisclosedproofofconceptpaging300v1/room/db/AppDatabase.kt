@@ -6,21 +6,25 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.dao.DeviceLocationDao
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.dao.StationDao
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.DeviceLocationEntity
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
 
 /**
  * Created by Roar on 13.07.2020.
  * Copyright RoGo Software / Gronmo IT
  */
 
-@Database(entities = arrayOf(
-
-    ),
+@Database(entities = [
+    StationEntity::class,
+    DeviceLocationEntity::class],
     version = 1,
     exportSchema = false)
 public abstract class AppDatabase:RoomDatabase()
 {
     abstract fun stationDao(): StationDao
+    abstract fun deviceLocationDao(): DeviceLocationDao
 
     val TAG = javaClass.simpleName
 

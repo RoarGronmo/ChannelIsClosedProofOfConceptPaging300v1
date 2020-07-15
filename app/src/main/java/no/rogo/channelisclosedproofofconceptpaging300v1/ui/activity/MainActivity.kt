@@ -16,6 +16,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
 import no.rogo.channelisclosedproofofconceptpaging300v1.BuildConfig
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
+import no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories.CommonDatabaseRepository
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.db.AppDatabase
 import no.rogo.channelisclosedproofofconceptpaging300v1.services.ForegroundOnlyLocationService
 import no.rogo.channelisclosedproofofconceptpaging300v1.ui.main.MainFragment
 import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
@@ -83,6 +85,9 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         super.onCreate(savedInstanceState)
 
+        //Creates the CommonDatabaseRepository and the Room database
+        CommonDatabaseRepository.getInstance(AppDatabase.getInstance(applicationContext))
+
         setContentView(R.layout.main_activity)
 
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
@@ -124,7 +129,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                     ?: Log.d(TAG, "onCreate: switchEnableGPSUpdateStateMLD was not bound")
             }
         }
-
     }
 
     override fun onStart() {

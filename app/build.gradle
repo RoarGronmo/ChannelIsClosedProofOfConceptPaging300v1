@@ -7,7 +7,7 @@ plugins {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.0"
+    buildToolsVersion "30.0.1"
 
     defaultConfig {
         applicationId "no.rogo.channelisclosedproofofconceptpaging300v1"
@@ -61,7 +61,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-process:2.3.0-alpha05'
     //kapt 'androidx.lifecycle:lifecycle-compiler:2.3.0-alpha05'
 
-
     //Broadcast
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
 
@@ -81,10 +80,11 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.3.0-alpha01'
     implementation 'androidx.room:room-ktx:2.3.0-alpha01'
 
+    //Paging 3
+    implementation 'androidx.paging:paging-runtime-ktx:3.0.0-alpha02'
+
     //Google Play Services
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-
-
 
     //Material
     implementation 'com.google.android.material:material:1.1.0'

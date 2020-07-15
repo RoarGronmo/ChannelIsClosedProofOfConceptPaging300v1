@@ -30,7 +30,7 @@ object APIFamappClientFactory {
                 .build()
 
             apiFamappInterfaceService = Builder()
-                .baseUrl("")
+                .baseUrl("https://www.famapp.no")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build()
