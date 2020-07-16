@@ -18,8 +18,6 @@ class StationPagingSource(
         private val passfrase: String,
         private val latitude: String,
         private val longitude: String,
-        private val sourceLimit: String,
-        private val sourceOffset: String,
         private val lastVersion: String,
         private val killed: String,
         private val range: String
