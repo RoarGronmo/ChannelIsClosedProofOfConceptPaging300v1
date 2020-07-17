@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.dao.DeviceLocationDao
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.dao.RemoteKeyDao
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.dao.StationDao
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.DeviceLocationEntity
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
@@ -25,6 +26,7 @@ public abstract class AppDatabase:RoomDatabase()
 {
     abstract fun stationDao(): StationDao
     abstract fun deviceLocationDao(): DeviceLocationDao
+    abstract fun remoteKeyDao(): RemoteKeyDao
 
     val TAG = javaClass.simpleName
 
