@@ -77,6 +77,10 @@ class StationRemoteMediator(
 
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int,APIGetStationsResponse>):RemoteKeyEntity
     {
+        val value = state.pages.lastOrNull(){it.data.isNotEmpty()}?.data?.lastOrNull()
+                ?.let { apiGetStationsResponse->
+                    val key = appDatabase.remoteKeyDao().getRemoteKeysFromStationId(apiGetStationsResponse.idsite)
+                }
 
     }
 
