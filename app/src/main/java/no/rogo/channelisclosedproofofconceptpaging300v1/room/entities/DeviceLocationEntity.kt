@@ -10,7 +10,7 @@ import java.util.*
  */
 @Entity(tableName = "devicelocation")
 data class DeviceLocationEntity (
-        @PrimaryKey var key:Int,
+        @PrimaryKey var deviceLocationPrimaryKey:Long,
         var latitude: Double,
         var longitude: Double,
         var time:Long

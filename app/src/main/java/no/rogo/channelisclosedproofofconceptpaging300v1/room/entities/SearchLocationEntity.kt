@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "searchlocation")
 class SearchLocationEntity (
-        @PrimaryKey var primaryKey: Int,
+        @PrimaryKey var searchLocationPrimaryKey: Long,
         var latitude: Double?=null,
         var longitude: Double?=null,
         var time:Long?=null

@@ -11,8 +11,10 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.api.responses.APIGetStat
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.db.AppDatabase
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.RemoteKeyEntity
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
 import retrofit2.HttpException
 import java.io.IOException
+import java.io.InvalidObjectException
 
 /**
  * Created by Roar on 16.07.2020.
@@ -21,13 +23,13 @@ import java.io.IOException
 @OptIn(ExperimentalPagingApi::class)
 class StationRemoteMediator(
         private val appDatabase: AppDatabase
-): RemoteMediator<Int, APIGetStationsResponse>(){
+): RemoteMediator<Int, StationResponse>(){
 
     private val TAG = javaClass.simpleName
 
     override suspend fun load(
             loadType: LoadType,
-            state: PagingState<Int, APIGetStationsResponse>
+            state: PagingState<Int, StationResponse>
     ): MediatorResult
     {
         val page = when (loadType)
@@ -38,8 +40,13 @@ class StationRemoteMediator(
             LoadType.PREPEND ->{
 
             }
-            LoadType.APPEND ->{
-
+            LoadType.APPEND -> {
+                val remoteKey = getRemoteKeyForLastItem(state)
+                if(remoteKey == null || remoteKey.nextKey == null) {
+                    Log.e(TAG, "load: Remote key or next key should not be null" )
+                    throw InvalidObjectException("Remote key or next key should not be null")
+                }
+                remoteKey.nextKey
             }
         }
 
@@ -54,7 +61,7 @@ class StationRemoteMediator(
                     passfrase = "qazwsxedcrfvtgbyhnujm",
                     latitude = "61.89",
                     longitude = "6.67",
-                    lastversion = "test v1.0",
+                    lastversion = "cicpoc3 rem v1.0",
                     killed = "0",
                     range = "1.0",
                     limit = limit,
@@ -75,13 +82,34 @@ class StationRemoteMediator(
 
     }
 
-    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int,APIGetStationsResponse>):RemoteKeyEntity
+    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, StationResponse>):RemoteKeyEntity?
     {
         val value = state.pages.lastOrNull(){it.data.isNotEmpty()}?.data?.lastOrNull()
-                ?.let { apiGetStationsResponse->
-                    val key = appDatabase.remoteKeyDao().getRemoteKeysFromStationId(apiGetStationsResponse.idsite)
+                ?.let { stationResponse->
+                    val remoteKeyEntity = appDatabase.remoteKeyDao().getRemoteKeysFromStationPrimaryKey(stationResponse.stationPrimaryKey)
+                    Log.i(TAG, "getRemoteKeyForLastItem: lookup remoteKeyEntity = $remoteKeyEntity")
+                    return@let remoteKeyEntity
+                }?:let { Log.w(TAG, "getRemoteKeyForLastItem: null found")
+                    return@let null
                 }
-
+        Log.i(TAG, "getRemoteKeyForLastItem: found remoteKeyEntity = $value")
+        return value
     }
+
+    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, StationResponse>):RemoteKeyEntity?
+    {
+        val value = state.pages.firstOrNull(){it.data.isNotEmpty()}?.data?.firstOrNull()
+                ?.let {stationResponse ->
+                    val remoteKeyEntity = appDatabase.remoteKeyDao().getRemoteKeysFromStationPrimaryKey(stationResponse.stationPrimaryKey)
+                    Log.i(TAG, "getRemoteKeyForFirstItem: lookup remoteKeyEntity = $remoteKeyEntity")
+                    return@let remoteKeyEntity
+                }?:let { Log.w(TAG, "getRemoteKeyForFirstItem: null found")
+                    return@let null
+                }
+        Log.i(TAG, "getRemoteKeyForFirstItem: found remoteKeyEntity = $value")
+        return value
+    }
+
+
 
 }

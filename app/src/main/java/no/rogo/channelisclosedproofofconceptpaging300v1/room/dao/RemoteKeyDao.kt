@@ -19,16 +19,16 @@ interface RemoteKeyDao {
     @Query("""
         SELECT * 
         FROM remotekeys 
-        WHERE remoteKeyId = :remoteKeyId
+        WHERE remoteKeyPrimaryKey = :remoteKeyPrimaryKey
     """)
-    suspend fun getRemoteKeysFromRemoteKeyId(remoteKeyId: Long):RemoteKeyEntity
+    suspend fun getRemoteKeysFromRemotePrimaryKey(remoteKeyPrimaryKey: Long):RemoteKeyEntity
 
     @Query("""
         SELECT * 
             FROM remotekeys
-            WHERE stationId = :stationId
+            WHERE stationPrimaryKey = :stationPrimaryKey
     """)
-    suspend fun getRemoteKeysFromStationId(stationId: String):RemoteKeyEntity
+    suspend fun getRemoteKeysFromStationPrimaryKey(stationPrimaryKey: Long):RemoteKeyEntity
 
     @Query("""
         DELETE FROM remotekeys

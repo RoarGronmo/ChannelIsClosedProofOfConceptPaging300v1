@@ -48,6 +48,8 @@ class CommonDatabaseRepository private constructor(
     {
         val service = APIFamappClientFactory.makeAPIFamappInterfaceService()
 
+
+
         val pager = Pager(
                 config = PagingConfig(
                         pageSize = 20,
@@ -60,7 +62,7 @@ class CommonDatabaseRepository private constructor(
                             passfrase = "qazwsxedcrfvtgbyhnujm",
                             latitude = "61.89",
                             longitude = "6.67",
-                            lastVersion = "cicpocp3 v1.0",
+                            lastVersion = "cicpocp3 get v1.0",
                             killed = "0",
                             range = "1.0"
                     )

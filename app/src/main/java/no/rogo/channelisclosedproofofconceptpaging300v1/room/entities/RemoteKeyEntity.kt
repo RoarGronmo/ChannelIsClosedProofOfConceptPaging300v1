@@ -10,8 +10,8 @@ import androidx.room.PrimaryKey
 
 @Entity (tableName = "remotekeys")
 data class RemoteKeyEntity(
-        @PrimaryKey val remoteKeyId: Long,
-        val stationId: String,
+        @PrimaryKey val remoteKeyPrimaryKey: Long,
+        val stationPrimaryKey: Long,
         val prevKey: Int?,
         val nextKey: Int?
 )

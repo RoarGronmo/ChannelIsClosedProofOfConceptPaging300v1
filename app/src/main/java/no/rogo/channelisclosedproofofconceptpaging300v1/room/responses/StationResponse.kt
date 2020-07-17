@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
  * Copyright RoGo Software / Gronmo IT
  */
 class StationResponse(
-    var primaryKey: Long,
+    var stationPrimaryKey: Long,
     var stationId: String?=null,
     var stationName: String?=null,
     var latitude: Float?=null,

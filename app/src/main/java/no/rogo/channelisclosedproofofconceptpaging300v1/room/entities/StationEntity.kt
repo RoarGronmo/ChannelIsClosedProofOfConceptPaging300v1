@@ -9,7 +9,8 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "stations")
 data class StationEntity(
-    @PrimaryKey var stationId: String,
+    @PrimaryKey (autoGenerate = true) var stationPrimaryKey: Long,
+    var stationId: String?=null,
     var stationName: String?=null,
     var latitude: Float?=null,
     var longitude: Float?=null,
