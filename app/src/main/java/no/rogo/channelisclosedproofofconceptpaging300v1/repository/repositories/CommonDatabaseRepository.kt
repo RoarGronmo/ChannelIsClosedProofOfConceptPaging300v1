@@ -3,20 +3,19 @@ package no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.liveData
+import androidx.paging.*
 import androidx.room.withTransaction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.rogo.channelisclosedproofofconceptpaging300v1.api.factories.APIFamappClientFactory
 import no.rogo.channelisclosedproofofconceptpaging300v1.api.responses.APIGetStationsResponse
+import no.rogo.channelisclosedproofofconceptpaging300v1.repository.mediators.StationRemoteMediator
 import no.rogo.channelisclosedproofofconceptpaging300v1.repository.pagingsources.StationPagingSource
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.db.AppDatabase
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.DeviceLocationEntity
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
 
 /**
  * Created by Roar on 14.07.2020.
@@ -27,13 +26,15 @@ class CommonDatabaseRepository private constructor(
 ){
     private val TAG = javaClass.simpleName
 
+    lateinit var stationsPagingSource: PagingSource<Int, StationResponse>
+
     fun insertLocation(location: Location)
     {
         CoroutineScope(Dispatchers.IO).launch {
             appDatabase.withTransaction {
                 appDatabase.deviceLocationDao().insertLocation(
                         DeviceLocationEntity(
-                                key = 0,
+                                deviceLocationPrimaryKey = 0,
                                 latitude = location.latitude,
                                 longitude = location.longitude,
                                 time = location.time
@@ -42,6 +43,22 @@ class CommonDatabaseRepository private constructor(
                 Log.i(TAG, "insertLocation: attempted to insert location=$location")
             }
         }
+    }
+
+    fun getLiveDataPagingStationResponses():LiveData<PagingData<StationResponse>>
+    {
+        val stationsPagingSourceFactory = {
+
+            stationsPagingSource = appDatabase.stationDao().getPagedStationResponses()
+
+            stationsPagingSource
+        }
+
+        return Pager(
+                config = PagingConfig(pageSize = 20),
+                remoteMediator = StationRemoteMediator(appDatabase),
+                pagingSourceFactory = stationsPagingSourceFactory
+        ).liveData
     }
 
     fun getLiveDataStations():LiveData<PagingData<APIGetStationsResponse>>

@@ -22,7 +22,7 @@ interface StationDao {
     @Query("""
         SELECT * FROM stations
     """)
-    fun getLiveDataPagedStations(): PagingSource<Int,StationResponse>
+    fun getPagedStationResponses(): PagingSource<Int,StationResponse>
 
     @Query("""
         SELECT 

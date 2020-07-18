@@ -59,7 +59,7 @@ class StationRemoteMediator(
             LoadType.APPEND -> {
                 Log.i(TAG, "load: APPEND state = $state")
                 val pageNoResponse = getPageNoResponseForLastItem(state)
-                if (pageNoResponse == null || pageNoResponse.pageNo == null*/) {
+                if (pageNoResponse == null || pageNoResponse.pageNo == null) {
                     Log.e(TAG, "load: APPEND PageNoResponse or its pageNo should not be null")
                     throw InvalidObjectException("load: APPEND PageNo should not be null")
                 }
@@ -73,10 +73,10 @@ class StationRemoteMediator(
         val service = APIFamappClientFactory.makeAPIFamappInterfaceService()
 
         try {
-            val ilimit= 20
+            val iLimit= 20
 
-            val limit = ilimit.toString()
-            val offset = (page*(ilimit-1)).toString()
+            val limit = iLimit.toString()
+            val offset = (page*(iLimit-1)).toString()
 
             val req = service.getStations(
                 userid = "10000",
@@ -90,6 +90,8 @@ class StationRemoteMediator(
                     offset = offset
             )
 
+            val endOfPaginationReached = req.isNullOrEmpty()
+
             Log.i(TAG, "load: req.size = ${req.size }")
 
             appDatabase.withTransaction {
@@ -99,17 +101,26 @@ class StationRemoteMediator(
                     appDatabase.remoteKeyDao().clearRemoteKeys()
                     appDatabase.stationDao().clearStations()
                 }
-                val prevKey = if (page == 1) null else page - 1
-                val nextKey = if (endOfPaginationReached) null else page+1
-                val keys = req.map {
-                    RemoteKeyEntity(
-                            stationPrimaryKey = ,
-
+                val newStations = req.map { stationResponse->
+                    StationEntity(
+                            stationPrimaryKey = 0,
+                            stationId = stationResponse.idSite,
+                            stationName = stationResponse.stationName,
+                            latitude = stationResponse.latitude?.toFloatOrNull(),
+                            longitude = stationResponse.longitude?.toFloatOrNull(),
+                            enterpriseId = stationResponse.enterpriseId?.toIntOrNull(),
+                            killed = stationResponse.siteKilled=="1",
+                            pageNo = page
                     )
                 }
+
+                if(loadType == LoadType.REFRESH)
+                {
+                    appDatabase.stationDao().clearStations()
+                }
+                appDatabase.stationDao().insertStation(newStations)
             }
-
-
+            return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
 
         }catch (exception: IOException)
         {

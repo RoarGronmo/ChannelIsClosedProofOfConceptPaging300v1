@@ -8,7 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Switch
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
 import no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories.CommonDatabaseRepository
 import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
@@ -16,6 +19,8 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainView
 class MainFragment : Fragment() {
 
     private val TAG by lazy { this::class.java.simpleName }
+
+    private var viewModelJob: Job? =null
 
     companion object {
         fun newInstance() = MainFragment()
@@ -52,6 +57,10 @@ class MainFragment : Fragment() {
 
             Log.d(TAG, "onActivityCreated: it.isChecked = ${it.isChecked}")
         }
+
+        mainViewModel
+
+
     }
 
 }
