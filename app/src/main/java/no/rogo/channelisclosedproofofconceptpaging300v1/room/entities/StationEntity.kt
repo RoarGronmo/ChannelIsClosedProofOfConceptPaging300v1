@@ -16,5 +16,6 @@ data class StationEntity(
     var longitude: Float?=null,
     var airDistance: Float?=null,
     var enterpriseId: Int?=null,
-    var killed: Boolean?=null
+    var killed: Boolean?=null,
+    var pageNo: Int?=null
 )

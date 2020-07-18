@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.PageNoResponse
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
 
 /**
@@ -22,6 +23,15 @@ interface StationDao {
         SELECT * FROM stations
     """)
     fun getLiveDataPagedStations(): PagingSource<Int,StationResponse>
+
+    @Query("""
+        SELECT 
+            stationPrimaryKey,
+            pageNo
+        FROM 
+            stations
+    """)
+    suspend fun getPageNoFromStationPrimaryKey(stationPrimaryKey: Long): PageNoResponse?
 
     @Query("""
         DELETE FROM stations

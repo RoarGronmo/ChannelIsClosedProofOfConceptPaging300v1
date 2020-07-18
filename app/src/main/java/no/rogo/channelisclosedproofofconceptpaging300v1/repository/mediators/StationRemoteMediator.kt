@@ -12,10 +12,12 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.api.responses.APIGetStat
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.db.AppDatabase
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.RemoteKeyEntity
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
+import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.PageNoResponse
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
 import retrofit2.HttpException
 import java.io.IOException
 import java.io.InvalidObjectException
+import kotlin.math.log
 
 /**
  * Created by Roar on 16.07.2020.
@@ -36,33 +38,33 @@ class StationRemoteMediator(
         val page = when (loadType)
         {
             LoadType.REFRESH ->{
-                val remoteKey = getRemoteKeyForClosestItemToPosition(state)
-                remoteKey?.nextKey?.minus(1)?:1
+                val pageNoResponse = getPageNoResponseForClosestItemToPosition(state)
+                pageNoResponse?.pageNo?:1
             }
             LoadType.PREPEND -> {
                 Log.i(TAG, "load: PREPEND state = $state")
-                val remoteKey = getRemoteKeyForFirstItem(state)
-                if (remoteKey == null) {
-                    Log.e(TAG, "load: PREPEND Remote key or next key should not be null")
-                    throw InvalidObjectException("Remote key or next key should not be null")
+                val pageNoResponse = getPageNoResponseForFirstItem(state)
+                if ((pageNoResponse == null)||(pageNoResponse.pageNo == null)) {
+                    Log.e(TAG, "load: PREPEND PageNoResponse or its pageNo should not be null")
+                    throw InvalidObjectException("load: PREPEND PageNoResponse or its pageNo should not be null")
                 }
-                //val prevKey = remoteKey.prevKey
-                if (remoteKey.prevKey == null) {
-                    Log.i(TAG, "load: PREPEND remoteKey.prevKey is null, no more data available ?")
+
+                if (pageNoResponse.pageNo?.minus(1)?:0<1) {
+                    Log.i(TAG, "load: PREPEND pageNo is 1 and start is then reached")
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
-                Log.i(TAG, "load: PREPEND sets page = remoteKey.prevKey = ${remoteKey.prevKey}")
-                remoteKey.prevKey
+                Log.i(TAG, "load: PREPEND sets page pageNoResponse.pageNo?.minus(1) = ${pageNoResponse.pageNo?.minus(1)?:0}")
+                pageNoResponse.pageNo?.minus(1)?:0
             }
             LoadType.APPEND -> {
                 Log.i(TAG, "load: APPEND state = $state")
-                val remoteKey = getRemoteKeyForLastItem(state)
-                if (remoteKey == null || remoteKey.nextKey == null) {
-                    Log.e(TAG, "load: APPEND Remote key or next key should not be null")
-                    throw InvalidObjectException("Remote key or next key should not be null")
+                val pageNoResponse = getPageNoResponseForLastItem(state)
+                if (pageNoResponse == null || pageNoResponse.pageNo == null*/) {
+                    Log.e(TAG, "load: APPEND PageNoResponse or its pageNo should not be null")
+                    throw InvalidObjectException("load: APPEND PageNo should not be null")
                 }
-                Log.i(TAG, "load: APPEND sets page = remoteKey.nextKey = ${remoteKey.nextKey}")
-                remoteKey.nextKey
+                Log.i(TAG, "load: APPEND current page PageNoResponse = $pageNoResponse")
+                pageNoResponse.pageNo?.plus(1)?:1 //requesting next page or first page
             }
         }
 
@@ -122,33 +124,65 @@ class StationRemoteMediator(
 
     }
 
-    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, StationResponse>):RemoteKeyEntity?
+    private suspend fun getPageNoResponseForLastItem(state: PagingState<Int, StationResponse>): PageNoResponse?
     {
-        val value = state.pages.lastOrNull(){it.data.isNotEmpty()}?.data?.lastOrNull()
-                ?.let { stationResponse->
-                    val remoteKeyEntity = appDatabase.remoteKeyDao().getRemoteKeysFromStationPrimaryKey(stationResponse.stationPrimaryKey)
-                    Log.i(TAG, "getRemoteKeyForLastItem: lookup remoteKeyEntity = $remoteKeyEntity")
-                    return@let remoteKeyEntity
-                }?:let { Log.w(TAG, "getRemoteKeyForLastItem: null found")
-                    return@let null
-                }
-        Log.i(TAG, "getRemoteKeyForLastItem: found remoteKeyEntity = $value")
+        val value = state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
+                ?.let { stationResponse ->
+                    Log.i(TAG, "getPageNoResponseForLastItem: stationResponse = $stationResponse")
+                    val pageNoResponse = appDatabase.stationDao().getPageNoFromStationPrimaryKey(stationResponse.stationPrimaryKey)
+                    Log.i(TAG, "getPageNoResponseForLastItem: pageNoResponse = $pageNoResponse")
+                    return@let pageNoResponse
+                }?:let {
+            Log.w(TAG, "getPageNoResponseForLastItem: stationResponse == null")
+            return@let null
+        }
+        Log.i(TAG, "getPageNoResponseForLastItem: return value = $value")
+
         return value
     }
 
-    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, StationResponse>):RemoteKeyEntity?
+    private suspend fun getPageNoResponseForFirstItem(state: PagingState<Int, StationResponse>): PageNoResponse?
     {
-        val value = state.pages.firstOrNull(){it.data.isNotEmpty()}?.data?.firstOrNull()
+        val value = state.pages.firstOrNull{it.data.isNullOrEmpty()}?.data?.firstOrNull()
                 ?.let {stationResponse ->
-                    val remoteKeyEntity = appDatabase.remoteKeyDao().getRemoteKeysFromStationPrimaryKey(stationResponse.stationPrimaryKey)
-                    Log.i(TAG, "getRemoteKeyForFirstItem: lookup remoteKeyEntity = $remoteKeyEntity")
-                    return@let remoteKeyEntity
-                }?:let { Log.w(TAG, "getRemoteKeyForFirstItem: null found")
-                    return@let null
-                }
-        Log.i(TAG, "getRemoteKeyForFirstItem: found remoteKeyEntity = $value")
+                    Log.i(TAG, "getPageNoResponseForFirstItem: stationResponse = $stationResponse")
+                    val pageNoResponse = appDatabase.stationDao().getPageNoFromStationPrimaryKey(stationResponse.stationPrimaryKey)
+                    Log.i(TAG, "getPageNoResponseForFirstItem: pageNoResponse = $pageNoResponse")
+                    return@let pageNoResponse
+                }?:let {
+            Log.w(TAG, "getPageNoResponseForFirstItem: stationResponse == null")
+            return@let null
+        }
+        Log.i(TAG, "getPageNoResponseForFirstItem: return value = $value")
+
         return value
     }
+
+    private suspend fun getPageNoResponseForClosestItemToPosition(
+            state: PagingState<Int, StationResponse>
+    ):PageNoResponse?
+    {
+        val outerValue = state.anchorPosition?.let { safeAnchorPosition ->
+            Log.i(TAG, "getPageNoResponseForClosestItemToPosition: safeAnchorPosition = $safeAnchorPosition")
+            val innerValue = state.closestItemToPosition(safeAnchorPosition)?.stationPrimaryKey
+                    ?.let { safeStationPrimaryKey->
+                        Log.i(TAG, "getPageNoResponseForClosestItemToPosition: safeStationPrimaryKey = $safeStationPrimaryKey")
+                        val pageNoResponse = appDatabase.stationDao().getPageNoFromStationPrimaryKey(safeStationPrimaryKey)
+                        Log.i(TAG, "getPageNoResponseForClosestItemToPosition: getPageNoFromStationPrimaryKey pageNoResponse = $pageNoResponse")
+                        return@let pageNoResponse
+                    }?:let {
+                Log.w(TAG, "getPageNoResponseForClosestItemToPosition: getPageNoResponseForClosesItemToPosition found null")
+                return@let null
+            }
+            Log.i(TAG, "getPageNoResponseForClosestItemToPosition: return innerValue = $innerValue")
+            return@let innerValue
+        }
+
+        Log.i(TAG, "getPageNoResponseForClosestItemToPosition: return outerValue = $outerValue")
+
+        return outerValue
+    }
+/*
 
     private suspend fun getRemoteKeyForClosestItemToPosition(
             state: PagingState<Int, StationResponse>
@@ -181,7 +215,36 @@ class StationRemoteMediator(
 
         return value1
     }
+*/
+/*
+    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, StationResponse>):RemoteKeyEntity?
+    {
+        val value = state.pages.lastOrNull(){it.data.isNotEmpty()}?.data?.lastOrNull()
+                ?.let { stationResponse->
+                    val remoteKeyEntity = appDatabase.remoteKeyDao().getRemoteKeysFromStationPrimaryKey(stationResponse.stationPrimaryKey)
+                    Log.i(TAG, "getRemoteKeyForLastItem: lookup remoteKeyEntity = $remoteKeyEntity")
+                    return@let remoteKeyEntity
+                }?:let { Log.w(TAG, "getRemoteKeyForLastItem: null found")
+                    return@let null
+                }
+        Log.i(TAG, "getRemoteKeyForLastItem: found remoteKeyEntity = $value")
+        return value
+    }
 
+    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, StationResponse>):RemoteKeyEntity?
+    {
+        val value = state.pages.firstOrNull(){it.data.isNotEmpty()}?.data?.firstOrNull()
+                ?.let {stationResponse ->
+                    val remoteKeyEntity = appDatabase.remoteKeyDao().getRemoteKeysFromStationPrimaryKey(stationResponse.stationPrimaryKey)
+                    Log.i(TAG, "getRemoteKeyForFirstItem: lookup remoteKeyEntity = $remoteKeyEntity")
+                    return@let remoteKeyEntity
+                }?:let { Log.w(TAG, "getRemoteKeyForFirstItem: null found")
+                    return@let null
+                }
+        Log.i(TAG, "getRemoteKeyForFirstItem: found remoteKeyEntity = $value")
+        return value
+    }
+*/
 
 
 }
