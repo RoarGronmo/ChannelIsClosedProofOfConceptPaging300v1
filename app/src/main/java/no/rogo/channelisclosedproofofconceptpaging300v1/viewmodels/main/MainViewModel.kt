@@ -16,7 +16,7 @@ class MainViewModel() : ViewModel() {
 
     val lastLocationMLD:MutableLiveData<Location?> by lazy { MutableLiveData<Location?>() }
 
-    val getLiveDataStationsResponse: LiveData<StationResponse> = CommonDatabaseRepository.getLiveDataStationsResponse()
+    val getLiveDataPagingDataStationsResponses = CommonDatabaseRepository.getLiveDataPagingDataStationResponse()
 
 
 }

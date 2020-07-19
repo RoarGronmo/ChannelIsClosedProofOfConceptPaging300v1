@@ -30,6 +30,8 @@ interface StationDao {
             pageNo
         FROM 
             stations
+        WHERE
+            stationPrimaryKey = :stationPrimaryKey
     """)
     suspend fun getPageNoFromStationPrimaryKey(stationPrimaryKey: Long): PageNoResponse?
 

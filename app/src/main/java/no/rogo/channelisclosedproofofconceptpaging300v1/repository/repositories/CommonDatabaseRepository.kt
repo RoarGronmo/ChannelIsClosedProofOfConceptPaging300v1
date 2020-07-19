@@ -45,7 +45,7 @@ class CommonDatabaseRepository private constructor(
         }
     }
 
-    fun getLiveDataPagingStationResponses():LiveData<PagingData<StationResponse>>
+    fun getLiveDataPagingDataStationResponses():LiveData<PagingData<StationResponse>>
     {
         val stationsPagingSourceFactory = {
 
@@ -110,6 +110,11 @@ class CommonDatabaseRepository private constructor(
         {
             Log.i(TAG, "insertLocation: instance = $instance, location = $location")
             instance?.insertLocation(location)
+        }
+
+        fun getLiveDataPagingDataStationResponse():LiveData<PagingData<StationResponse>>?
+        {
+            return instance?.getLiveDataPagingDataStationResponses()
         }
 
 

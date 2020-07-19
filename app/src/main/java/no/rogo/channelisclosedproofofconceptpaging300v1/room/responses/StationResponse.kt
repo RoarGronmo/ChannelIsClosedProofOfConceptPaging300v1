@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
  * Created by Roar on 17.07.2020.
  * Copyright RoGo Software / Gronmo IT
  */
-class StationResponse(
+data class StationResponse(
     var stationPrimaryKey: Long,
     var stationId: String?=null,
     var stationName: String?=null,
@@ -14,5 +14,6 @@ class StationResponse(
     var longitude: Float?=null,
     var airDistance: Float?=null,
     var enterpriseId: Int?=null,
-    var killed: Boolean?=null
+    var killed: Boolean?=null,
+    var pageNo: Int?=null
 )

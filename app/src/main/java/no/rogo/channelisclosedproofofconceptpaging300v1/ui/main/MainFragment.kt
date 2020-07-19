@@ -13,7 +13,9 @@ import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import no.rogo.channelisclosedproofofconceptpaging300v1.R
+import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.MainFragmentBinding
 import no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories.CommonDatabaseRepository
+import no.rogo.channelisclosedproofofconceptpaging300v1.ui.adapters.StationAdapter
 import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
 
 class MainFragment : Fragment() {
@@ -21,6 +23,7 @@ class MainFragment : Fragment() {
     private val TAG by lazy { this::class.java.simpleName }
 
     private var viewModelJob: Job? =null
+    lateinit var adapter:StationAdapter
 
     companion object {
         fun newInstance() = MainFragment()
@@ -30,7 +33,16 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+
+        adapter = StationAdapter()
+
+        val binding = MainFragmentBinding.inflate(inflater,container, false)
+
+        //return inflater.inflate(R.layout.main_fragment, container, false)
+
+        binding.stationRecyclerView.adapter = adapter
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,7 +70,10 @@ class MainFragment : Fragment() {
             Log.d(TAG, "onActivityCreated: it.isChecked = ${it.isChecked}")
         }
 
-        mainViewModel
+        mainViewModel.getLiveDataPagingDataStationsResponses?.observe(viewLifecycleOwner){pagingDataStationResponse ->
+            Log.i(TAG, "onViewCreated: mainViewModel.getLiveDataPagingDataStationsResponses observing pagingdata")
+            station_recycler_view
+        }
 
 
     }
