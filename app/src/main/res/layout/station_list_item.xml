@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{stationResponse.stationPrimaryKey}"
+            android:text="Station Id"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_view_station_name" />
 
@@ -41,9 +41,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="TextView"
+            android:text="Air distance"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_station_address" />
+            app:layout_constraintTop_toBottomOf="@+id/text_view_station_id" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
