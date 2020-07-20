@@ -15,7 +15,7 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationRe
  * Copyright RoGo Software / Gronmo IT
  */
 
-class StationAdapter:PagingDataAdapter<StationResponse, RecyclerView.ViewHolder>(
+class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolder>(
         object : DiffUtil.ItemCallback<StationResponse>() {
 
             val TAG = javaClass.simpleName
@@ -44,8 +44,21 @@ class StationAdapter:PagingDataAdapter<StationResponse, RecyclerView.ViewHolder>
 
         }
 ){
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        TODO("Not yet implemented")
+
+    val TAG = javaClass.simpleName
+
+    override fun onBindViewHolder(
+            holder: ViewHolder,
+            position: Int
+    ) {
+
+        getItem(position)?.let { stationResponse ->
+            Log.i(TAG, "onBindViewHolder: stationResponse = $stationResponse")
+            holder.bind(stationResponse)
+
+        }?:holder.clear()
+
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -65,16 +78,24 @@ class StationAdapter:PagingDataAdapter<StationResponse, RecyclerView.ViewHolder>
             private val stationListItemBinding: StationListItemBinding
     ):RecyclerView.ViewHolder(stationListItemBinding.root)
     {
-        fun binding(
+        private val TAG = javaClass.simpleName
 
+        fun bind(
+            item: StationResponse
         )
         {
+            stationListItemBinding.apply {
+                stationResponse = item
 
+                executePendingBindings()
+            }
         }
 
         fun clear()
         {
-
+            stationListItemBinding.apply {
+                executePendingBindings()
+            }
         }
     }
 

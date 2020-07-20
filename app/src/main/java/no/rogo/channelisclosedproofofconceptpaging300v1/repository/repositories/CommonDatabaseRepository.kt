@@ -47,6 +47,8 @@ class CommonDatabaseRepository private constructor(
 
     fun getLiveDataPagingDataStationResponses():LiveData<PagingData<StationResponse>>
     {
+        Log.i(TAG, "getLiveDataPagingDataStationResponses: ()")
+
         val stationsPagingSourceFactory = {
 
             stationsPagingSource = appDatabase.stationDao().getPagedStationResponses()
@@ -61,34 +63,7 @@ class CommonDatabaseRepository private constructor(
         ).liveData
     }
 
-    fun getLiveDataStations():LiveData<PagingData<APIGetStationsResponse>>
-    {
-        val service = APIFamappClientFactory.makeAPIFamappInterfaceService()
 
-
-
-        val pager = Pager(
-                config = PagingConfig(
-                        pageSize = 20,
-                        enablePlaceholders = false
-                ),
-                pagingSourceFactory = {
-                    val pagingSource = StationPagingSource(
-                            apiFamappInterfaceService = service,
-                            userId = "10000",
-                            passfrase = "qazwsxedcrfvtgbyhnujm",
-                            latitude = "61.89",
-                            longitude = "6.67",
-                            lastVersion = "cicpocp3 get v1.0",
-                            killed = "0",
-                            range = "1.0"
-                    )
-                    pagingSource
-                }
-        ).liveData
-
-        return pager
-    }
 
 
     companion object
@@ -114,6 +89,7 @@ class CommonDatabaseRepository private constructor(
 
         fun getLiveDataPagingDataStationResponse():LiveData<PagingData<StationResponse>>?
         {
+            Log.i(TAG, "getLiveDataPagingDataStationResponse: instance = $instance")
             return instance?.getLiveDataPagingDataStationResponses()
         }
 

@@ -35,6 +35,7 @@ class StationRemoteMediator(
             state: PagingState<Int, StationResponse>
     ): MediatorResult
     {
+        Log.i(TAG, "load:() loadType = $loadType")
         val page = when (loadType)
         {
             LoadType.REFRESH ->{
@@ -76,7 +77,7 @@ class StationRemoteMediator(
             val iLimit= 20
 
             val limit = iLimit.toString()
-            val offset = (page*(iLimit-1)).toString()
+            val offset = (iLimit*(page-1)).toString()
 
             val req = service.getStations(
                 userid = "10000",
@@ -118,6 +119,7 @@ class StationRemoteMediator(
                 {
                     appDatabase.stationDao().clearStations()
                 }
+                Log.i(TAG, "load: inserting new stations : $newStations")
                 appDatabase.stationDao().insertStation(newStations)
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
@@ -154,6 +156,7 @@ class StationRemoteMediator(
 
     private suspend fun getPageNoResponseForFirstItem(state: PagingState<Int, StationResponse>): PageNoResponse?
     {
+        Log.i(TAG, "getPageNoResponseForFirstItem: state.pages.firstOrNull() = ${state.pages.firstOrNull()}")
         val value = state.pages.firstOrNull{it.data.isNullOrEmpty()}?.data?.firstOrNull()
                 ?.let {stationResponse ->
                     Log.i(TAG, "getPageNoResponseForFirstItem: stationResponse = $stationResponse")

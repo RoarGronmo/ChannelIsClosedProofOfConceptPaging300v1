@@ -11,7 +11,7 @@ import retrofit2.http.Query
 
 interface APIFamappInterfaceService {
 
-    @GET("/fuelpump2/liststations_fp3_v6.php")
+    @GET("/fuelpump/liststations_fp3_v6.php")
     suspend fun getStations(
         @Query("userid") userid: String,
         @Query("passfrase") passfrase: String,

@@ -17,6 +17,7 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.MainFragment
 import no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories.CommonDatabaseRepository
 import no.rogo.channelisclosedproofofconceptpaging300v1.ui.adapters.StationAdapter
 import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
+import javax.security.auth.login.LoginException
 
 class MainFragment : Fragment() {
 
@@ -70,9 +71,14 @@ class MainFragment : Fragment() {
             Log.d(TAG, "onActivityCreated: it.isChecked = ${it.isChecked}")
         }
 
-        mainViewModel.getLiveDataPagingDataStationsResponses?.observe(viewLifecycleOwner){pagingDataStationResponse ->
-            Log.i(TAG, "onViewCreated: mainViewModel.getLiveDataPagingDataStationsResponses observing pagingdata")
-            station_recycler_view
+        mainViewModel.getLiveDataPagingDataStationsResponses?.observe(viewLifecycleOwner){
+            pagingDataStationResponse ->
+            Log.i(TAG, "onViewCreated: mainViewModel.getLiveDataPagingDataStationsResponses observing pagingDataResponse.size = $pagingDataStationResponse")
+            viewModelJob?.cancel()
+            viewModelJob = lifecycleScope.launch {
+                Log.i(TAG, "onViewCreated: viewModelJob submitting data to adapter")
+                adapter.submitData(pagingDataStationResponse)
+            }
         }
 
 
