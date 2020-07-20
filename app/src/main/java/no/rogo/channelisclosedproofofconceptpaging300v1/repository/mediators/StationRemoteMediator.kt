@@ -43,6 +43,9 @@ class StationRemoteMediator(
                 pageNoResponse?.pageNo?:1
             }
             LoadType.PREPEND -> {
+                Log.i(TAG, "load: PREPEND not handled: state.pages.size=${state.pages.size}")
+                return MediatorResult.Success(endOfPaginationReached = true)
+                /*
                 Log.i(TAG, "load: PREPEND state = $state")
                 val pageNoResponse = getPageNoResponseForFirstItem(state)
                 if ((pageNoResponse == null)||(pageNoResponse.pageNo == null)) {
@@ -55,7 +58,8 @@ class StationRemoteMediator(
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
                 Log.i(TAG, "load: PREPEND sets page pageNoResponse.pageNo?.minus(1) = ${pageNoResponse.pageNo?.minus(1)?:0}")
-                pageNoResponse.pageNo?.minus(1)?:0
+                pageNoResponse.pageNo?.minus(1)?:0               
+                */
             }
             LoadType.APPEND -> {
                 Log.i(TAG, "load: APPEND state = $state")
@@ -99,7 +103,7 @@ class StationRemoteMediator(
                 if(loadType == LoadType.REFRESH)
                 {
                     Log.i(TAG, "load: REFRESH clearing remotekeys and stations")
-                    appDatabase.remoteKeyDao().clearRemoteKeys()
+                    //appDatabase.remoteKeyDao().clearRemoteKeys()
                     appDatabase.stationDao().clearStations()
                 }
                 val newStations = req.map { stationResponse->
@@ -121,6 +125,7 @@ class StationRemoteMediator(
                 }
                 Log.i(TAG, "load: inserting new stations : $newStations")
                 appDatabase.stationDao().insertStation(newStations)
+                Log.i(TAG, "load: finished inserting new stations")
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
 
@@ -139,6 +144,8 @@ class StationRemoteMediator(
 
     private suspend fun getPageNoResponseForLastItem(state: PagingState<Int, StationResponse>): PageNoResponse?
     {
+        Log.i(TAG, "getPageNoResponseForLastItem: state.pages.size:${state.pages.size}, " +
+                "state.pages.lastOrNull:${state.pages.lastOrNull()}")
         val value = state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
                 ?.let { stationResponse ->
                     Log.i(TAG, "getPageNoResponseForLastItem: stationResponse = $stationResponse")
