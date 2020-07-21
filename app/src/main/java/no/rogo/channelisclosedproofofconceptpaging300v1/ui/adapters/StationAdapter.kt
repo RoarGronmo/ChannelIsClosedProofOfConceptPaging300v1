@@ -1,11 +1,16 @@
 package no.rogo.channelisclosedproofofconceptpaging300v1.ui.adapters
 
+import android.provider.Settings.Global.getString
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.station_list_item.view.*
+import no.rogo.channelisclosedproofofconceptpaging300v1.R
 import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.MainFragmentBinding
 import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.StationListItemBinding
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
@@ -56,7 +61,24 @@ class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolde
             Log.i(TAG, "onBindViewHolder: stationResponse = $stationResponse")
             holder.bind(stationResponse)
 
+
+
+            holder.itemView.text_view_station_id.text=stationResponse.stationId
+            holder.itemView.text_view_air_distance.text = stationResponse.airDistance.toString()
+            holder.itemView.textView_station_location.text = "SL: ${holder.itemView.context.getString(
+                R.string.locationText,
+                stationResponse.latitude,
+                stationResponse.longitude)}"
+            holder.itemView.textView_device_location.text = "DL: ${holder.itemView.context.getString(
+                R.string.locationText,
+                stationResponse.latitude,
+                stationResponse.longitude)}"
+
+            holder
+
+
         }?:holder.clear()
+
 
 
     }

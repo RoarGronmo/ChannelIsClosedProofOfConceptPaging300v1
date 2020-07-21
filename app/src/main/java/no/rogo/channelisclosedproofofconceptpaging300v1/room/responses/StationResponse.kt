@@ -12,6 +12,8 @@ data class StationResponse(
     var stationName: String?=null,
     var latitude: Float?=null,
     var longitude: Float?=null,
+    var deviceLatitude: Float?=null,
+    var deviceLongitude: Float?=null,
     var airDistance: Float?=null,
     var enterpriseId: Int?=null,
     var killed: Boolean?=null,

@@ -35,8 +35,8 @@ class CommonDatabaseRepository private constructor(
                 appDatabase.deviceLocationDao().insertLocation(
                         DeviceLocationEntity(
                                 deviceLocationPrimaryKey = 0,
-                                latitude = location.latitude,
-                                longitude = location.longitude,
+                                deviceLatitude = location.latitude,
+                                deviceLongitude = location.longitude,
                                 time = location.time
                         )
                 )

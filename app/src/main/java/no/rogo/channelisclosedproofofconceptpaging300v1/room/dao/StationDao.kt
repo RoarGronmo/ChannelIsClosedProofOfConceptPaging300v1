@@ -20,7 +20,9 @@ interface StationDao {
     suspend fun insertStation(stations: List<StationEntity>)
 
     @Query("""
-        SELECT * FROM stations
+        SELECT stations.*, devicelocation.* 
+        FROM stations
+        LEFT JOIN devicelocation 
     """)
     fun getPagedStationResponses(): PagingSource<Int,StationResponse>
 
