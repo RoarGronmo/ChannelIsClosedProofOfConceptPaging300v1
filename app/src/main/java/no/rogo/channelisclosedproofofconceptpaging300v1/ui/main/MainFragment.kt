@@ -73,13 +73,18 @@ class MainFragment : Fragment() {
 
         mainViewModel.getLiveDataPagingDataStationsResponses?.observe(viewLifecycleOwner){
             pagingDataStationResponse ->
-            Log.i(TAG, "onViewCreated: mainViewModel.getLiveDataPagingDataStationsResponses observing pagingDataResponse.size = $pagingDataStationResponse")
-            viewModelJob?.cancel()
+            Log.i(TAG, "onViewCreated: mainViewModel.getLiveDataPagingDataStationsResponses " +
+                    "observing pagingDataResponse = $pagingDataStationResponse")
+            Log.i(TAG, "onViewCreated: viewModelJob.isActive = ${viewModelJob?.isActive}")
             viewModelJob = lifecycleScope.launch {
                 Log.i(TAG, "onViewCreated: viewModelJob submitting data to adapter")
+                val count=0
+                //pagingDataStationResponse.flatMap()
                 adapter.submitData(pagingDataStationResponse)
             }
         }
+
+
 
 
     }

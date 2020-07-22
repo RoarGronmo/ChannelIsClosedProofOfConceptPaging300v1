@@ -1,5 +1,6 @@
 package no.rogo.channelisclosedproofofconceptpaging300v1.ui.adapters
 
+import android.location.Location
 import android.provider.Settings.Global.getString
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,7 +22,7 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationRe
  */
 
 class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolder>(
-        object : DiffUtil.ItemCallback<StationResponse>() {
+        diffCallback = object : DiffUtil.ItemCallback<StationResponse>() {
 
             val TAG = javaClass.simpleName
 
@@ -35,6 +36,8 @@ class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolde
                                 && (oldItem.enterpriseId == newItem.enterpriseId)
                                 && (oldItem.latitude == newItem.latitude)
                                 && (oldItem.longitude == newItem.longitude)
+                                && (oldItem.deviceLatitude == newItem.deviceLatitude)
+                                && (oldItem.deviceLongitude == newItem.deviceLongitude)
                                 && (oldItem.stationPrimaryKey == newItem.stationPrimaryKey)
                         )
                 Log.i(TAG, "areItemsTheSame: StationAdapter DiffUtil contents: $oldItem == $newItem: $isLike")
@@ -71,8 +74,16 @@ class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolde
                 stationResponse.longitude)}"
             holder.itemView.textView_device_location.text = "DL: ${holder.itemView.context.getString(
                 R.string.locationText,
-                stationResponse.latitude,
-                stationResponse.longitude)}"
+                stationResponse.deviceLatitude,
+                stationResponse.deviceLongitude)}"
+            holder.itemView.text_view_air_distance.text = calculateDistance(
+                stationResponse.latitude?.toDouble(),stationResponse.longitude?.toDouble(),
+                stationResponse.deviceLatitude?.toDouble(),stationResponse.deviceLongitude?.toDouble()
+            ).toString()
+
+
+
+
 
             holder
 
@@ -81,6 +92,21 @@ class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolde
 
 
 
+    }
+
+    fun calculateDistance(
+        startLatitude: Double?,
+        startLongitude: Double?,
+        endLatitude: Double?,
+        endLongitude: Double?
+    ): Double? {
+        startLatitude?:return null
+        startLongitude?:return null
+        endLatitude?:return null
+        endLongitude?:return null
+        val results = FloatArray(3)
+        Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude, results)
+        return results[0].toDouble()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
