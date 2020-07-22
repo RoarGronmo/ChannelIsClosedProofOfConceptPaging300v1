@@ -17,6 +17,8 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.MainFragment
 import no.rogo.channelisclosedproofofconceptpaging300v1.repository.repositories.CommonDatabaseRepository
 import no.rogo.channelisclosedproofofconceptpaging300v1.ui.adapters.StationAdapter
 import no.rogo.channelisclosedproofofconceptpaging300v1.viewmodels.main.MainViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.security.auth.login.LoginException
 
 class MainFragment : Fragment() {
@@ -57,7 +59,9 @@ class MainFragment : Fragment() {
                 textViewLocation.text=getString(
                         R.string.locationText,
                         safeLocation.latitude,
-                        safeLocation.longitude)
+                        safeLocation.longitude,
+                        SimpleDateFormat("HH:mm:ss",Locale.ROOT)
+                            .format(Date(safeLocation.time)))
                 CommonDatabaseRepository.insertLocation(safeLocation)
             }
         }
@@ -80,7 +84,7 @@ class MainFragment : Fragment() {
                 Log.i(TAG, "onViewCreated: viewModelJob submitting data to adapter")
                 val count=0
                 //pagingDataStationResponse.flatMap()
-                adapter.submitData(pagingDataStationResponse)
+                adapter.submitData(lifecycle,pagingDataStationResponse)
             }
         }
 

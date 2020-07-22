@@ -32,13 +32,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="+6.67, +61.89" />
+                tools:text="+6.67, +61.89, 10:19:00" />
 
             <Switch
                 android:id="@+id/switch_enable_gps_update"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enable GPS update"
+                android:text="Enable GPS"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -36,6 +36,10 @@ class StationRemoteMediator(
     ): MediatorResult
     {
         Log.i(TAG, "load:() loadType = $loadType")
+        Log.i(TAG, "load:() state.pages.size = ${state.pages.size}")
+        Log.i(TAG, "load:() state.pages.anchorPosition = ${state.anchorPosition}")
+        Log.i(TAG, "load:() state.config = ${state.config}")
+
         val page = when (loadType)
         {
             LoadType.REFRESH ->{
@@ -111,8 +115,8 @@ class StationRemoteMediator(
                             stationPrimaryKey = 0,
                             stationId = stationResponse.idSite,
                             stationName = stationResponse.stationName,
-                            latitude = stationResponse.latitude?.toFloatOrNull(),
-                            longitude = stationResponse.longitude?.toFloatOrNull(),
+                            latitude = stationResponse.latitude?.toDoubleOrNull(),
+                            longitude = stationResponse.longitude?.toDoubleOrNull(),
                             enterpriseId = stationResponse.enterpriseId?.toIntOrNull(),
                             killed = stationResponse.siteKilled=="1",
                             pageNo = page

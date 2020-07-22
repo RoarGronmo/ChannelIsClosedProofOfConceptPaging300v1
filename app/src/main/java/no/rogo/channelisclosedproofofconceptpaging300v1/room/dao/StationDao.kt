@@ -24,7 +24,7 @@ interface StationDao {
         FROM stations
         LEFT JOIN devicelocation 
     """)
-    fun getPagedStationResponses(): PagingSource<Int,StationResponse>
+    fun getPagedStationResponse(): PagingSource<Int,StationResponse>
 
     @Query("""
         SELECT 

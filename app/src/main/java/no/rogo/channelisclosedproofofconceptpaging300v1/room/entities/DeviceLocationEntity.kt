@@ -13,5 +13,5 @@ data class DeviceLocationEntity (
         @PrimaryKey var deviceLocationPrimaryKey:Long,
         var deviceLatitude: Double,
         var deviceLongitude: Double,
-        var time:Long
+        var deviceTime:Long
 )

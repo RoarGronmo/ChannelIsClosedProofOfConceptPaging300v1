@@ -8,13 +8,9 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import no.rogo.channelisclosedproofofconceptpaging300v1.api.factories.APIFamappClientFactory
-import no.rogo.channelisclosedproofofconceptpaging300v1.api.responses.APIGetStationsResponse
 import no.rogo.channelisclosedproofofconceptpaging300v1.repository.mediators.StationRemoteMediator
-import no.rogo.channelisclosedproofofconceptpaging300v1.repository.pagingsources.StationPagingSource
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.db.AppDatabase
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.DeviceLocationEntity
-import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEntity
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
 
 /**
@@ -37,10 +33,10 @@ class CommonDatabaseRepository private constructor(
                                 deviceLocationPrimaryKey = 0,
                                 deviceLatitude = location.latitude,
                                 deviceLongitude = location.longitude,
-                                time = location.time
+                                deviceTime = location.time
                         )
                 )
-                Log.i(TAG, "insertLocation: attempted to insert location=$location")
+                Log.i(TAG, "insertLocation: attempted to insert location=${location.latitude}, ${location.longitude}, ${location.time}")
             }
         }
     }
@@ -51,7 +47,7 @@ class CommonDatabaseRepository private constructor(
 
         val stationsPagingSourceFactory = {
 
-            stationsPagingSource = appDatabase.stationDao().getPagedStationResponses()
+            stationsPagingSource = appDatabase.stationDao().getPagedStationResponse()
 
             stationsPagingSource
         }
@@ -83,8 +79,10 @@ class CommonDatabaseRepository private constructor(
 
         fun insertLocation(location: Location)
         {
-            Log.i(TAG, "insertLocation: instance = $instance, location = $location")
-            instance?.insertLocation(location)
+            //Log.i(TAG, "insertLocation: instance = $instance, location = $location")
+            instance?.insertLocation(location)?:let {
+                Log.w(TAG, "insertLocation: no iNSTANCE", )
+            }
         }
 
         fun getLiveDataPagingDataStationResponse():LiveData<PagingData<StationResponse>>?

@@ -15,6 +15,8 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.R
 import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.MainFragmentBinding
 import no.rogo.channelisclosedproofofconceptpaging300v1.databinding.StationListItemBinding
 import no.rogo.channelisclosedproofofconceptpaging300v1.room.responses.StationResponse
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by Roar on 19.07.2020.
@@ -71,11 +73,14 @@ class StationAdapter:PagingDataAdapter<StationResponse, StationAdapter.ViewHolde
             holder.itemView.textView_station_location.text = "SL: ${holder.itemView.context.getString(
                 R.string.locationText,
                 stationResponse.latitude,
-                stationResponse.longitude)}"
+                stationResponse.longitude,"")}"
             holder.itemView.textView_device_location.text = "DL: ${holder.itemView.context.getString(
                 R.string.locationText,
                 stationResponse.deviceLatitude,
-                stationResponse.deviceLongitude)}"
+                stationResponse.deviceLongitude,
+                SimpleDateFormat("HH:mm:ss",Locale.ROOT)
+                    .format(Date(stationResponse.deviceTime?:0))
+                )}"
             holder.itemView.text_view_air_distance.text = calculateDistance(
                 stationResponse.latitude?.toDouble(),stationResponse.longitude?.toDouble(),
                 stationResponse.deviceLatitude?.toDouble(),stationResponse.deviceLongitude?.toDouble()

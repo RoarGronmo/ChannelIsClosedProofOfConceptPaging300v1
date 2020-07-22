@@ -23,7 +23,7 @@ import no.rogo.channelisclosedproofofconceptpaging300v1.room.entities.StationEnt
     StationEntity::class,
     DeviceLocationEntity::class,
     SearchLocationEntity::class],
-    version = 4,
+    version = 12,
     exportSchema = false)
 public abstract class AppDatabase:RoomDatabase()
 {
