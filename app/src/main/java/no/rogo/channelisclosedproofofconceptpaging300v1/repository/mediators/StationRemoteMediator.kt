@@ -37,8 +37,14 @@ class StationRemoteMediator(
     {
         Log.i(TAG, "load:() loadType = $loadType")
         Log.i(TAG, "load:() state.pages.size = ${state.pages.size}")
-        Log.i(TAG, "load:() state.pages.anchorPosition = ${state.anchorPosition}")
-        Log.i(TAG, "load:() state.config = ${state.config}")
+        Log.i(TAG, "load:() state.pages.lastOrNull()?.data = ${state.pages.lastOrNull()?.data}")
+        Log.i(TAG, "load:() state.pages.lastOrNull()?.data?.isNotEmpty = ${state.pages.lastOrNull()?.data?.isNotEmpty()}")
+        Log.i(TAG, "load:() state.anchorPosition = ${state.anchorPosition}")
+        Log.i(TAG, "load:() state.config.initialLoadSize = ${state.config.initialLoadSize}")
+        Log.i(TAG, "load:() state.config.pageSize = ${state.config.pageSize}")
+        Log.i(TAG, "load:() state.config.maxSize = ${state.config.maxSize}")
+        Log.i(TAG, "load:() state.config.jumpThreshold = ${state.config.jumpThreshold}")
+        Log.i(TAG, "load:() state.config.enablePlaceHolders = ${state.config.enablePlaceholders}")
 
         val page = when (loadType)
         {
@@ -131,6 +137,7 @@ class StationRemoteMediator(
                 appDatabase.stationDao().insertStation(newStations)
                 Log.i(TAG, "load: finished inserting new stations")
             }
+            Log.i(TAG, "load: returning with endOfPaginationReached = $endOfPaginationReached")
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
 
         }catch (exception: IOException)
