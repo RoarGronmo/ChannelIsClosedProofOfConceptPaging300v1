@@ -19,3 +19,5 @@ Paging 3.0.0-alpha03 is used with following caveats:
 * Note 7: If you want to subsequently test `Note 1:` error, please rise the version number in Room DB (room->db->AppDataBase.kt), this will clear the Room DB, since it has fallback to destructive mode.
 
 * Note 8: If you change the paging dependency to `alpha02`, it will run much more stable, and it will not crash on first run anymore.
+
+* Note 9: It is not used Flow here, but LiveData instead.
